@@ -1,0 +1,71 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Build outputs (cleaned)
+dist/
+build/
+out/
+*.local
+
+# Archivos temporales de compilación
+*.exe.backup
+*.pdb
+*.ilk
+*-old.exe
+*-v2.exe
+*-fixed.exe
+*-final.exe
+*-backup.exe
+*-ultimate.exe
+
+# EXCEPCIÓN: Incluir solo nuestro ejecutable principal
+!CalculadoraPrecios3D.exe
+
+# Dependencies
+node_modules
+jspm_packages
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+.Spotlight-V100
+.Trashes
+._*
+
+# Cache directories
+.cache
+.parcel-cache
+.npm
+.eslintcache
+
+# Coverage directory
+coverage
+*.lcov
+
+# Temporary files
+*.tmp
+*.temp

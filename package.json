@@ -1,0 +1,86 @@
+{
+  "name": "calculadora-precios-3d",
+  "version": "1.0.0",
+  "description": "Sistema profesional de cálculo de costes para impresión 3D en resina con interfaz de escritorio",
+  "author": {
+    "name": "Artur",
+    "email": "tu-email@ejemplo.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tu-usuario/calculadora-precios-3d.git"
+  },
+  "keywords": [
+    "3d-printing",
+    "resin-printing",
+    "cost-calculator",
+    "electron",
+    "react",
+    "desktop-app",
+    "pricing-tool"
+  ],
+  "main": "public/electron.cjs",
+  "homepage": "./",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "electron": "electron public/electron.cjs",
+    "electron-dev": "concurrently \"npm run dev\" \"wait-on http://localhost:3000 && electron public/electron.cjs\"",
+    "package-win": "npm run build && npx electron-packager . \"Calculadora de Precios 3D\" --platform=win32 --arch=x64 --out=dist-packager --overwrite --ignore=\"/(node_modules/electron-builder|src)$\" --icon=public/app-icon.ico",
+    "create-icon": "node scripts/create-icon.cjs",
+    "start-app": "scripts/Iniciar Calculadora.bat",
+    "create-shortcut": "scripts/Crear Acceso Directo.bat"
+  },
+  "dependencies": {
+    "electron-is-dev": "^3.0.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.30.1",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.6.0",
+    "canvas": "^3.1.2",
+    "concurrently": "^9.2.0",
+    "electron": "^37.2.5",
+    "electron-packager": "^17.1.2",
+    "eslint": "^9.30.1",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.3.0",
+    "png2icons": "^2.0.1",
+    "rcedit": "^4.0.1",
+    "vite": "^7.0.4",
+    "wait-on": "^8.0.4"
+  },
+  "build": {
+    "appId": "com.calculadora3d.app",
+    "productName": "Calculadora de Precios 3D",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "public/electron.cjs",
+      "node_modules/**/*"
+    ],
+    "win": {
+      "target": "dir"
+    },
+    "compression": "store",
+    "nsis": false,
+    "portable": false,
+    "extraMetadata": {
+      "main": "public/electron.cjs"
+    }
+  }
+}
