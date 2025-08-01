@@ -1,455 +1,318 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import './App.css';
+import PrinterTypeSelector from './components/PrinterTypeSelector';
+import FilamentCalculator from './components/FilamentCalculator';
+import ResinCalculator from './components/ResinCalculator';
+
+// 🚀 OPTIMIZACIÓN: Lazy loading de componentes pesados
+const LazyFilamentCalculator = React.lazy(() => import('./components/FilamentCalculator'));
+const LazyResinCalculator = React.lazy(() => import('./components/ResinCalculator'));
 
 export default function CalculadoraPrecios3D() {
-  // Estados de animación y carga
+  // Estados principales
   const [isLoaded, setIsLoaded] = useState(false);
+  const [selectedPrinterType, setSelectedPrinterType] = useState(null); // null para mostrar menú inicio
   const [activePanel, setActivePanel] = useState(null);
   
-  // Configuración de precios
-  const [precioResina, setPrecioResina] = useState(27);
-  const [costePorHoraPostProcesado, setCostePorHoraPostProcesado] = useState(15);
-  const [precioLuzHora, setPrecioLuzHora] = useState(0.08);
-  const [margen, setMargen] = useState(30);
-
-  // Datos de la pieza actual
-  const [nombrePieza, setNombrePieza] = useState('');
-  const [mlUsados, setMlUsados] = useState(0);
-  const [tiempoHoras, setTiempoHoras] = useState(0);
-  const [tiempoPostProcesado, setTiempoPostProcesado] = useState(0);
-  const [imagenPieza, setImagenPieza] = useState(null);
-  const [previewImagen, setPreviewImagen] = useState(null);
-  
-  // Piezas guardadas - con persistencia local
-  const [piezasGuardadas, setPiezasGuardadas] = useState(() => {
+  // Perfil por defecto y gestión de perfiles
+  const [profiles, setProfiles] = useState(() => {
     try {
-      const piezasLocalStorage = localStorage.getItem('piezasGuardadas3D');
-      return piezasLocalStorage ? JSON.parse(piezasLocalStorage) : [];
+      const savedProfiles = localStorage.getItem('printerProfiles3D');
+      const loadedProfiles = savedProfiles ? JSON.parse(savedProfiles) : [];
+      
+      // Si no hay perfiles, crear uno por defecto
+      if (loadedProfiles.length === 0) {
+        const defaultResinProfile = {
+          id: 1,
+          name: 'Perfil por Defecto Resina',
+          type: 'resin',
+          isDefault: true,
+          resinCost: 35,
+          electricityCostPerHour: 0.15,
+          postProcessingCostPerHour: 15,
+          profitMargin: 30
+        };
+        const defaultFilamentProfile = {
+          id: 2,
+          name: 'Perfil por Defecto Filamento',
+          type: 'filament',
+          isDefault: true,
+          filamentCost: 25,
+          electricityCostPerHour: 0.15,
+          machineWear: 0.05,
+          postProcessingCost: 2,
+          profitMargin: 30
+        };
+        loadedProfiles.push(defaultResinProfile, defaultFilamentProfile);
+      }
+      
+      return loadedProfiles;
     } catch (error) {
-      console.error('Error al cargar piezas guardadas:', error);
+      console.error('Error al cargar perfiles:', error);
+      return [{
+        id: 1,
+        name: 'Perfil por Defecto Resina',
+        type: 'resin',
+        isDefault: true,
+        resinCost: 35,
+        electricityCostPerHour: 0.15,
+        postProcessingCostPerHour: 15,
+        profitMargin: 30
+      }, {
+        id: 2,
+        name: 'Perfil por Defecto Filamento',
+        type: 'filament',
+        isDefault: true,
+        filamentCost: 25,
+        electricityCostPerHour: 0.15,
+        machineWear: 0.05,
+        postProcessingCost: 2,
+        profitMargin: 30
+      }];
+    }
+  });
+
+  const [currentProfile, setCurrentProfile] = useState(() => profiles[0]);
+  
+  // Actualizar currentProfile cuando cambie el tipo de impresora
+  useEffect(() => {
+    if (selectedPrinterType) {
+      const relevantProfiles = profiles.filter(p => p.type === selectedPrinterType);
+      const defaultProfile = relevantProfiles.find(p => p.isDefault) || relevantProfiles[0];
+      if (defaultProfile) {
+        setCurrentProfile(defaultProfile);
+      }
+    }
+  }, [selectedPrinterType, profiles]);
+  
+  // 🚀 OPTIMIZACIÓN: Carga lazy del localStorage solo para piezas guardadas
+  const [savedPieces, setSavedPieces] = useState(() => {
+    try {
+      const pieces = localStorage.getItem('savedPieces3D');
+      return pieces ? JSON.parse(pieces) : [];
+    } catch (error) {
+      console.error('Error al cargar piezas:', error);
       return [];
     }
   });
-  
-  const fileInputRef = useRef(null);
 
-  // Efecto de carga inicial
+  // 🚀 OPTIMIZACIÓN: Efecto de carga más rápido
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoaded(true);
-    }, 500);
+    }, 300); // Reducido de 500ms a 300ms
     return () => clearTimeout(timer);
   }, []);
 
-  // Persistencia automática de piezas guardadas
+  // 🚀 OPTIMIZACIÓN: Debounce para localStorage para piezas y perfiles
+  const debouncedSavePieces = useCallback(
+    debounce((pieces) => {
+      try {
+        localStorage.setItem('savedPieces3D', JSON.stringify(pieces));
+      } catch (error) {
+        console.error('Error al guardar piezas:', error);
+      }
+    }, 500),
+    []
+  );
+
+  const debouncedSaveProfiles = useCallback(
+    debounce((profiles) => {
+      try {
+        localStorage.setItem('printerProfiles3D', JSON.stringify(profiles));
+      } catch (error) {
+        console.error('Error al guardar perfiles:', error);
+      }
+    }, 500),
+    []
+  );
+
+  // Persistencia optimizada con debounce
   useEffect(() => {
-    try {
-      localStorage.setItem('piezasGuardadas3D', JSON.stringify(piezasGuardadas));
-    } catch (error) {
-      console.error('Error al guardar piezas:', error);
-    }
-  }, [piezasGuardadas]);
+    debouncedSavePieces(savedPieces);
+  }, [savedPieces, debouncedSavePieces]);
 
-  // Función para seleccionar todo el texto al hacer focus
-  const handleFocus = (e) => {
-    e.target.select();
-  };
+  useEffect(() => {
+    debouncedSaveProfiles(profiles);
+  }, [profiles, debouncedSaveProfiles]);
 
-  // Cálculos
-  const costeResina = (mlUsados / 1000) * precioResina;
-  const costeLuz = tiempoHoras * precioLuzHora;
-  const costePostProcesado = tiempoPostProcesado * costePorHoraPostProcesado;
-  const costeTotal = costeResina + costeLuz + costePostProcesado;
-  const precioFinal = costeTotal * (1 + margen / 100);
+  // 🚀 OPTIMIZACIÓN: Funciones memoizadas
+  const handleTypeChange = useCallback((type) => {
+    setSelectedPrinterType(type);
+    setActivePanel(null);
+  }, []);
 
-  // Función para formatear moneda
-  const formatCurrency = (amount) => {
-    return amount.toLocaleString('es-ES', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
-  };
+  const handleSavePiece = useCallback((piece) => {
+    setSavedPieces(prev => [...prev, piece]);
+  }, []);
 
-  const manejarCambioImagen = (e) => {
-    const archivo = e.target.files[0];
-    if (archivo) {
-      setImagenPieza(archivo);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setPreviewImagen(e.target.result);
-      };
-      reader.readAsDataURL(archivo);
-    }
-  };
+  const handleDeletePiece = useCallback((pieceId) => {
+    setSavedPieces(prev => prev.filter(p => p.id !== pieceId));
+  }, []);
 
-  const guardarPieza = () => {
-    if (!nombrePieza.trim()) {
-      alert('Por favor, introduce un nombre para la pieza');
-      return;
-    }
+  const handleLoadPiece = useCallback((piece) => {
+    console.log('Cargando pieza:', piece);
+  }, []);
 
-    const nuevaPieza = {
-      id: Date.now(),
-      nombre: nombrePieza,
-      mlUsados,
-      tiempoHoras,
-      tiempoPostProcesado,
-      costeTotal,
-      precioFinal,
-      imagen: previewImagen,
-      fecha: new Date().toLocaleDateString('es-ES')
+  const resetToTypeSelector = useCallback(() => {
+    setSelectedPrinterType(null);
+    setActivePanel(null);
+  }, []);
+
+  // Funciones para gestión de perfiles
+  const handleSaveProfile = useCallback((profileData) => {
+    const newProfile = {
+      ...profileData,
+      id: Date.now()
     };
+    setProfiles(prev => [...prev, newProfile]);
+    setCurrentProfile(newProfile);
+  }, []);
 
-    setPiezasGuardadas([...piezasGuardadas, nuevaPieza]);
-    
-    // Limpiar formulario
-    setNombrePieza('');
-    setMlUsados(0);
-    setTiempoHoras(0);
-    setTiempoPostProcesado(0);
-    setPreviewImagen(null);
-    setImagenPieza(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+  const handleUpdateProfile = useCallback((profileId, updates) => {
+    setProfiles(prev => prev.map(p => 
+      p.id === profileId ? { ...p, ...updates } : p
+    ));
+    if (currentProfile.id === profileId) {
+      setCurrentProfile(prev => ({ ...prev, ...updates }));
     }
-  };
+  }, [currentProfile.id]);
 
-  const eliminarPieza = (id) => {
-    setPiezasGuardadas(piezasGuardadas.filter(pieza => pieza.id !== id));
-  };
+  const handleDeleteProfile = useCallback((profileId) => {
+    if (profiles.length > 1) {
+      setProfiles(prev => prev.filter(p => p.id !== profileId));
+      if (currentProfile.id === profileId) {
+        setCurrentProfile(profiles.find(p => p.id !== profileId));
+      }
+    }
+  }, [profiles, currentProfile.id]);
 
-  const cargarPieza = (pieza) => {
-    setNombrePieza(pieza.nombre);
-    setMlUsados(pieza.mlUsados);
-    setTiempoHoras(pieza.tiempoHoras);
-    setTiempoPostProcesado(pieza.tiempoPostProcesado);
-    setPreviewImagen(pieza.imagen);
-    setActivePanel('pieza');
-  };
+  const handleSelectProfile = useCallback((profileId) => {
+    const profile = profiles.find(p => p.id === profileId);
+    if (profile) {
+      setCurrentProfile(profile);
+    }
+  }, [profiles]);
+
+  // 🚀 OPTIMIZACIÓN: Estadísticas memoizadas para la navegación
+  const stats = useMemo(() => {
+    const resinPieces = savedPieces.filter(p => p.type === 'resin').length;
+    const filamentPieces = savedPieces.filter(p => p.type === 'filament').length;
+    return { 
+      resinPieces, 
+      filamentPieces, 
+      totalPieces: resinPieces + filamentPieces,
+      totalProfiles: profiles.length
+    };
+  }, [savedPieces, profiles.length]);
+
+  // 🚀 OPTIMIZACIÓN: Suspense para lazy loading - Solo si hay tipo seleccionado
+  const renderCalculator = useMemo(() => {
+    if (!selectedPrinterType) return null;
+    
+    return (
+      <React.Suspense 
+        fallback={
+          <div className="calculator-loading">
+            <div className="loader"></div>
+            <p>Cargando calculadora...</p>
+          </div>
+        }
+      >
+        {selectedPrinterType === 'filament' ? (
+          <LazyFilamentCalculator 
+            profile={currentProfile}
+            profiles={profiles.filter(p => p.type === 'filament')}
+            onSavePiece={handleSavePiece}
+            onSaveProfile={handleSaveProfile}
+            onUpdateProfile={handleUpdateProfile}
+            onDeleteProfile={handleDeleteProfile}
+            onSelectProfile={handleSelectProfile}
+            activePanel={activePanel}
+            setActivePanel={setActivePanel}
+            savedPieces={savedPieces.filter(p => p.type === 'filament')}
+            onDeletePiece={handleDeletePiece}
+            onLoadPiece={handleLoadPiece}
+          />
+        ) : (
+          <LazyResinCalculator 
+            profile={currentProfile}
+            profiles={profiles.filter(p => p.type === 'resin')}
+            onSavePiece={handleSavePiece}
+            onSaveProfile={handleSaveProfile}
+            onUpdateProfile={handleUpdateProfile}
+            onDeleteProfile={handleDeleteProfile}
+            onSelectProfile={handleSelectProfile}
+            activePanel={activePanel}
+            setActivePanel={setActivePanel}
+            savedPieces={savedPieces.filter(p => p.type === 'resin')}
+            onDeletePiece={handleDeletePiece}
+            onLoadPiece={handleLoadPiece}
+          />
+        )}
+      </React.Suspense>
+    );
+  }, [selectedPrinterType, currentProfile, activePanel, savedPieces, handleSavePiece, handleDeletePiece, handleLoadPiece]);
 
   return (
     <div className={`app-container ${isLoaded ? 'loaded' : ''}`}>
       
-      {/* Header Profesional */}
-      <div className="modern-header">
-        <div className="header-background"></div>
-        <div className="header-content">
-          <div className="header-icon">🖨️</div>
-          <div className="header-text">
-            <h1>Calculadora de Precios 3D</h1>
-            <p>Sistema Profesional de Cálculo de Costes</p>
+      {/* Header simplificado - Solo cuando hay tipo seleccionado */}
+      {selectedPrinterType && (
+        <header className="app-header">
+          <h1 className="app-title">📱 Calculadora de Precios 3D</h1>
+          
+          <div className="printer-type-indicator">
+            <button onClick={resetToTypeSelector} className="change-type-btn">
+              {selectedPrinterType === 'resin' ? '🏭 Resina SLA/DLP' : '🔧 Filamento FDM/FFF'}
+              <span className="change-text">← Cambiar</span>
+            </button>
           </div>
-          <div className="header-stats">
-            <div className="stat-item">
-              <span className="stat-number">{piezasGuardadas.length}</span>
-              <span className="stat-label">Proyectos</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-number">v1.0.7</span>
-              <span className="stat-label">Versión</span>
-            </div>
-          </div>
-        </div>
-      </div>
+        </header>
+      )}
 
-      {/* Dashboard Moderno */}
-      <div className="dashboard">
+      {/* Contenido principal */}
+      <main className="main-content">
         
-        {/* Panel de Resumen de Costes */}
-        <div className="cost-summary-panel">
-          <div className="summary-header">
-            <h2>💰 Resumen de Costes</h2>
-            <div className="summary-badge">Cálculo en Tiempo Real</div>
-          </div>
-          
-          <div className="cost-grid">
-            <div className="cost-item">
-              <div className="cost-icon">🧪</div>
-              <div className="cost-details">
-                <span className="cost-label">Resina</span>
-                <span className="cost-value">{formatCurrency(costeResina)}</span>
-              </div>
-            </div>
-            
-            <div className="cost-item">
-              <div className="cost-icon">⚡</div>
-              <div className="cost-details">
-                <span className="cost-label">Energía</span>
-                <span className="cost-value">{formatCurrency(costeLuz)}</span>
-              </div>
-            </div>
-            
-            <div className="cost-item">
-              <div className="cost-icon">🔧</div>
-              <div className="cost-details">
-                <span className="cost-label">Post-procesado</span>
-                <span className="cost-value">{formatCurrency(costePostProcesado)}</span>
-              </div>
-            </div>
-            
-            <div className="cost-total">
-              <div className="total-line"></div>
-              <div className="total-details">
-                <span className="total-label">Precio Final</span>
-                <span className="total-value">{formatCurrency(precioFinal)}</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Menú de inicio - Selector de tipo de impresión */}
+        {!selectedPrinterType && (
+          <PrinterTypeSelector 
+            selectedType={selectedPrinterType}
+            onTypeChange={handleTypeChange}
+          />
+        )}
 
-        {/* Paneles de Configuración */}
-        <div className="config-panels">
-          
-          {/* Panel de Configuración de Precios */}
-          <div className={`modern-panel ${activePanel === 'precios' ? 'active' : ''}`}
-            onClick={() => setActivePanel(activePanel === 'precios' ? null : 'precios')}>
-            <div className="panel-header">
-              <div className="panel-icon">💲</div>
-              <div className="panel-title">
-                <h3>Configuración de Precios</h3>
-                <p>Ajusta los costes base</p>
-              </div>
-              <div className="panel-toggle">
-                {activePanel === 'precios' ? '−' : '+'}
-              </div>
-            </div>
-            
-            <div className="panel-content" onClick={(e) => e.stopPropagation()}>
-              <div className="input-group">
-                <label>Precio resina por litro</label>
-                <div className="modern-input-container">
-                  <input 
-                    type="number" 
-                    step="0.01"
-                    value={precioResina} 
-                    onChange={e => setPrecioResina(+e.target.value)} 
-                    onFocus={handleFocus}
-                    className="modern-input"
-                  />
-                  <span className="input-unit">€/L</span>
-                </div>
-              </div>
-              
-              <div className="input-group">
-                <label>Coste post-procesado por hora</label>
-                <div className="modern-input-container">
-                  <input 
-                    type="number" 
-                    step="0.01"
-                    value={costePorHoraPostProcesado} 
-                    onChange={e => setCostePorHoraPostProcesado(+e.target.value)} 
-                    onFocus={handleFocus}
-                    className="modern-input"
-                  />
-                  <span className="input-unit">€/h</span>
-                </div>
-              </div>
-              
-              <div className="input-group">
-                <label>Precio de luz por hora</label>
-                <div className="modern-input-container">
-                  <input 
-                    type="number" 
-                    step="0.001"
-                    value={precioLuzHora} 
-                    onChange={e => setPrecioLuzHora(+e.target.value)} 
-                    onFocus={handleFocus}
-                    className="modern-input"
-                  />
-                  <span className="input-unit">€/h</span>
-                </div>
-              </div>
-              
-              <div className="input-group">
-                <label>Margen de beneficio</label>
-                <div className="modern-input-container">
-                  <input 
-                    type="number" 
-                    step="1"
-                    value={margen} 
-                    onChange={e => setMargen(+e.target.value)} 
-                    onFocus={handleFocus}
-                    className="modern-input"
-                  />
-                  <span className="input-unit">%</span>
-                </div>
-              </div>
-            </div>
-          </div>
+        {/* Calculadora específica cuando hay tipo seleccionado */}
+        {selectedPrinterType && renderCalculator}
+      </main>
 
-          {/* Panel de Nueva Pieza */}
-          <div className={`modern-panel ${activePanel === 'pieza' ? 'active' : ''}`}
-            onClick={() => setActivePanel(activePanel === 'pieza' ? null : 'pieza')}>
-            <div className="panel-header">
-              <div className="panel-icon">🎯</div>
-              <div className="panel-title">
-                <h3>Nueva Pieza</h3>
-                <p>Calcula el coste de tu proyecto</p>
-              </div>
-              <div className="panel-toggle">
-                {activePanel === 'pieza' ? '−' : '+'}
-              </div>
-            </div>
-            
-            <div className="panel-content" onClick={(e) => e.stopPropagation()}>
-              <div className="input-group">
-                <label>Nombre de la pieza</label>
-                <div className="modern-input-container">
-                  <input 
-                    type="text"
-                    value={nombrePieza} 
-                    onChange={e => setNombrePieza(e.target.value)} 
-                    className="modern-input"
-                    placeholder="Ej: Miniatura dragón"
-                  />
-                </div>
-              </div>
-              
-              <div className="input-group">
-                <label>Volumen de resina usado</label>
-                <div className="modern-input-container">
-                  <input 
-                    type="number" 
-                    step="0.1"
-                    value={mlUsados} 
-                    onChange={e => setMlUsados(+e.target.value)} 
-                    onFocus={handleFocus}
-                    className="modern-input"
-                  />
-                  <span className="input-unit">ml</span>
-                </div>
-              </div>
-              
-              <div className="input-group">
-                <label>Tiempo de impresión</label>
-                <div className="modern-input-container">
-                  <input 
-                    type="number" 
-                    step="0.1"
-                    value={tiempoHoras} 
-                    onChange={e => setTiempoHoras(+e.target.value)} 
-                    onFocus={handleFocus}
-                    className="modern-input"
-                  />
-                  <span className="input-unit">horas</span>
-                </div>
-              </div>
-              
-              <div className="input-group">
-                <label>Tiempo de post-procesado</label>
-                <div className="modern-input-container">
-                  <input 
-                    type="number" 
-                    step="0.1"
-                    value={tiempoPostProcesado} 
-                    onChange={e => setTiempoPostProcesado(+e.target.value)} 
-                    onFocus={handleFocus}
-                    className="modern-input"
-                  />
-                  <span className="input-unit">horas</span>
-                </div>
-              </div>
-              
-              <div className="input-group">
-                <label>Imagen de la pieza (opcional)</label>
-                <div className="file-input-container">
-                  <input 
-                    ref={fileInputRef}
-                    type="file" 
-                    accept="image/*" 
-                    onChange={manejarCambioImagen}
-                    className="file-input"
-                  />
-                  <div className="file-input-button">
-                    📷 Seleccionar imagen
-                  </div>
-                </div>
-                
-                {previewImagen && (
-                  <div className="image-preview">
-                    <img src={previewImagen} alt="Preview" />
-                  </div>
-                )}
-              </div>
-              
-              <button 
-                onClick={guardarPieza}
-                className="save-button"
-                disabled={!nombrePieza.trim()}
-              >
-                💾 Guardar Pieza
-              </button>
-            </div>
-          </div>
-
-          {/* Panel de Piezas Guardadas */}
-          <div className={`modern-panel ${activePanel === 'guardadas' ? 'active' : ''}`}
-            onClick={() => setActivePanel(activePanel === 'guardadas' ? null : 'guardadas')}>
-            <div className="panel-header">
-              <div className="panel-icon">📂</div>
-              <div className="panel-title">
-                <h3>Piezas Guardadas</h3>
-                <p>Gestiona tus proyectos</p>
-              </div>
-              <div className="panel-toggle">
-                {activePanel === 'guardadas' ? '−' : '+'}
-              </div>
-            </div>
-            
-            <div className="panel-content" onClick={(e) => e.stopPropagation()}>
-              {piezasGuardadas.length === 0 ? (
-                <div className="empty-state">
-                  <div className="empty-icon">📦</div>
-                  <p>No hay piezas guardadas</p>
-                  <small>Crea tu primera pieza para comenzar</small>
-                </div>
-              ) : (
-                <div className="saved-pieces">
-                  {piezasGuardadas.map(pieza => (
-                    <div key={pieza.id} className="saved-piece">
-                      <div className="piece-info">
-                        {pieza.imagen && (
-                          <div className="piece-thumbnail">
-                            <img src={pieza.imagen} alt={pieza.nombre} />
-                          </div>
-                        )}
-                        <div className="piece-details">
-                          <h4>{pieza.nombre}</h4>
-                          <p>Coste: {formatCurrency(pieza.costeTotal)}</p>
-                          <p>Precio: {formatCurrency(pieza.precioFinal)}</p>
-                          <small>{pieza.fecha}</small>
-                        </div>
-                      </div>
-                      <div className="piece-actions">
-                        <button 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            cargarPieza(pieza);
-                          }}
-                          className="load-button"
-                        >
-                          ↻
-                        </button>
-                        <button 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            eliminarPieza(pieza.id);
-                          }}
-                          className="delete-button"
-                        >
-                          🗑️
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
+
+// 🚀 UTILIDAD: Función debounce para optimizar localStorage
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+// 🚀 OPTIMIZACIÓN: HOC para memoización de componentes pesados
+export const withPerformance = (Component) => {
+  return React.memo(Component, (prevProps, nextProps) => {
+    // Comparación shallow personalizada para mejor rendimiento
+    const keys = Object.keys(prevProps);
+    for (let key of keys) {
+      if (prevProps[key] !== nextProps[key]) {
+        return false;
+      }
+    }
+    return true;
+  });
+};
