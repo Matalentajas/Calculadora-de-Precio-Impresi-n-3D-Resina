@@ -13,6 +13,12 @@ build/
 out/
 *.local
 
+# Ejecutables y aplicaciones compiladas
+*.exe
+dist-app/
+dist-electron/
+dist-packager/
+
 # Archivos temporales de compilación
 *.exe.backup
 *.pdb

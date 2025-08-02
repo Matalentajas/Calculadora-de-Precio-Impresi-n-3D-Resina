@@ -17,13 +17,20 @@ Una aplicación web moderna para calcular precios de impresión 3D para **resina
 
 ## 🚀 Instalación y Uso
 
-### Desarrollo
+### Desarrollo Web
 ```bash
 npm install
 npm run dev
 ```
 
-### Producción
+### Aplicación de Escritorio
+```bash
+npm install
+npm run app:dist
+```
+Esto genera el ejecutable en `dist-app/win-unpacked/Calculadora 3D.exe`
+
+### Producción Web
 ```bash
 npm run build
 npm run preview
