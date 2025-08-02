@@ -7,31 +7,11 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Build outputs (cleaned)
+# Build outputs
 dist/
 build/
 out/
 *.local
-
-# Ejecutables y aplicaciones compiladas
-*.exe
-dist-app/
-dist-electron/
-dist-packager/
-
-# Archivos temporales de compilación
-*.exe.backup
-*.pdb
-*.ilk
-*-old.exe
-*-v2.exe
-*-fixed.exe
-*-final.exe
-*-backup.exe
-*-ultimate.exe
-
-# EXCEPCIÓN: Incluir solo nuestro ejecutable principal
-!CalculadoraPrecios3D.exe
 
 # Dependencies
 node_modules
