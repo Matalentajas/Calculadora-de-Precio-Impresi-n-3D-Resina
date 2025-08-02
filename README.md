@@ -1,32 +1,60 @@
-# Calculadora de Precios 3D - Resina y Filamento
+# Calculadora de Precios 3D
 
 ![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)
 ![React](https://img.shields.io/badge/React-19.1.0-61dafb.svg)
-![Vite](https://img.shields.io/badge/Vite-5.4.2-646cff.svg)
+![Vite](https://img.shields.io/badge/Vite-7.0.6-646cff.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-Una aplicación web profesional para calcular precios de impresión 3D tanto para **resina** como para **filamento**. Diseñada con una interfaz moderna y funcionalidades avanzadas para makers, empresarios y entusiastas de la impresión 3D.
+Una aplicación web moderna para calcular precios de impresión 3D para **resina** y **filamento**.
 
-## Características Principales
+## ✨ Características
 
-### Calculadoras Especializadas
-- **Calculadora de Resina**: Optimizada para impresoras SLA/DLP con cálculo por mililitros
-- **Calculadora de Filamento**: Diseñada para impresoras FDM/FFF con cálculo por gramos
-- **Cálculos precisos** con variables de costo detalladas
-- **Margen de beneficio configurable** para uso comercial
+- 🧮 **Calculadora de Resina** - Para impresoras SLA/DLP
+- 🧮 **Calculadora de Filamento** - Para impresoras FDM/FFF
+- 💾 **Gestión de Proyectos** - Guarda y organiza tus cálculos
+- 📱 **Diseño Responsive** - Funciona en cualquier dispositivo
+- 🎨 **Interfaz Moderna** - Tema oscuro profesional
 
-### Gestión de Proyectos
-- **Biblioteca de piezas**: Sistema de guardado y organización de proyectos
-- **Carga rápida**: Restauración instantánea de configuraciones previas
-- **Persistencia local**: Almacenamiento automático en el navegador
-- **Gestión completa**: Funciones de cargar, guardar y eliminar piezas
+## 🚀 Instalación y Uso
 
-### Interfaz Moderna
-- **Diseño responsive** adaptable a cualquier dispositivo
-- **Tema oscuro profesional** con gradientes y efectos visuales
-- **Tarjetas compactas** para visualización optimizada de múltiples proyectos
-- **Scroll personalizado** integrado en el diseño
-- **Efectos interactivos** suaves y profesionales
+### Desarrollo
+```bash
+npm install
+npm run dev
+```
+
+### Producción
+```bash
+npm run build
+npm run preview
+```
+
+## 📂 Estructura del Proyecto
+
+```
+src/
+├── components/
+│   ├── ResinCalculator.jsx    # Calculadora de resina
+│   ├── FilamentCalculator.jsx # Calculadora de filamento
+│   └── ...
+├── styles/
+└── App.jsx                    # Aplicación principal
+```
+
+## 🛠️ Tecnologías
+
+- **React 19** - Framework principal
+- **Vite 7** - Build tool optimizado
+- **CSS3** - Estilos modernos con gradientes
+- **LocalStorage** - Persistencia de datos
+
+## 📄 Licencia
+
+MIT License - ver [LICENSE](LICENSE) para más detalles.
+
+---
+
+Desarrollado por [Artur](https://github.com/Matalentajas)
 
 ### Rendimiento Optimizado
 - **React 19** con hooks memoizados para máximo rendimiento
