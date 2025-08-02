@@ -1,5 +1,359 @@
-import React, { useState, useEffect, useMemo, useCallback, useId } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useId, useRef } from 'react';
 import './App-dashboard.css';
+
+// Componente Calculator Widget como componente separado fuera del render
+const CalculatorWidget = React.memo(({ 
+  inputRefs,
+  inputValues,
+  selectedPrinterType, 
+  setSelectedPrinterType, 
+  handleInputChange, 
+  saveProject 
+}) => {
+  // Generar IDs únicos para cada input para evitar conflictos
+  const volumeId = useId();
+  const weightId = useId();
+  const printTimeId = useId();
+  const postProcessTimeId = useId();
+  const piecesId = useId();
+  const materialCostId = useId();
+  const electricityCostId = useId();
+  const postProcessCostId = useId();
+  const profitMarginId = useId();
+  const designTimeId = useId();
+  const designRateId = useId();
+  const failureRateId = useId();
+  const supportsCostId = useId();
+  const shippingCostId = useId();
+  const deliveryTimeId = useId();
+  const projectNameId = useId();
+
+  return (
+      <div className="dashboard-widget widget-calculator">
+        <div className="widget-header">
+          <div className="widget-title">
+            <div className="widget-icon">🧮</div>
+            Calculadora de Precios
+          </div>
+          
+          {/* SELECTOR TOGGLE MINIMALISTA SOLO TEXTO */}
+          <div className="printer-type-selector">
+            <div 
+              className={`selector-option ${selectedPrinterType === 'resin' ? 'active' : 'inactive'}`}
+              onClick={() => setSelectedPrinterType('resin')}
+            >
+              <span className="option-text">Impresora Resina</span>
+            </div>
+            <div 
+              className={`selector-option ${selectedPrinterType === 'filament' ? 'active' : 'inactive'}`}
+              onClick={() => setSelectedPrinterType('filament')}
+            >
+              <span className="option-text">Impresora Filamento</span>
+            </div>
+          </div>
+        </div>
+        <div className="widget-content">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+            <div>
+              <h3 style={{ marginBottom: '1rem', color: '#60a5fa' }}>Parámetros de Impresión</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <input 
+                  key={`${selectedPrinterType}-volume-weight`}
+                  id={selectedPrinterType === 'resin' ? volumeId : weightId}
+                  type="number" 
+                  placeholder={selectedPrinterType === 'resin' ? "Volumen de resina (ml)" : "Peso filamento (g)"}
+                  ref={inputRefs[selectedPrinterType === 'resin' ? 'volume' : 'weight']}
+                  defaultValue={inputValues[selectedPrinterType === 'resin' ? 'volume' : 'weight']}
+                  onChange={(e) => handleInputChange(selectedPrinterType === 'resin' ? 'volume' : 'weight', e.target.value)}
+                  style={{
+                    background: 'rgba(255,255,255,0.1)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    borderRadius: '8px',
+                    padding: '0.75rem',
+                    color: 'white'
+                  }}
+                />
+                <input 
+                  key={`${selectedPrinterType}-printTime`}
+                  id={printTimeId}
+                  type="number" 
+                  placeholder="Tiempo de impresión (horas)"
+                  ref={inputRefs.printTime}
+                  defaultValue={inputValues.printTime}
+                  onChange={(e) => handleInputChange('printTime', e.target.value)}
+                  style={{
+                    background: 'rgba(255,255,255,0.1)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    borderRadius: '8px',
+                    padding: '0.75rem',
+                    color: 'white'
+                  }}
+                />
+                <input 
+                  key={`${selectedPrinterType}-postProcessTime`}
+                  id={postProcessTimeId}
+                  type="number" 
+                  placeholder="Tiempo post-procesado (horas)"
+                  ref={inputRefs.postProcessTime}
+                  defaultValue={inputValues.postProcessTime}
+                  onChange={(e) => handleInputChange('postProcessTime', e.target.value)}
+                  style={{
+                    background: 'rgba(255,255,255,0.1)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    borderRadius: '8px',
+                    padding: '0.75rem',
+                    color: 'white'
+                  }}
+                />
+                <input 
+                  key={`${selectedPrinterType}-pieces`}
+                  id={piecesId}
+                  type="number" 
+                  placeholder="Número de piezas"
+                  ref={inputRefs.pieces}
+                  defaultValue={inputValues.pieces}
+                  onChange={(e) => handleInputChange('pieces', e.target.value)}
+                  style={{
+                    background: 'rgba(255,255,255,0.1)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    borderRadius: '8px',
+                    padding: '0.75rem',
+                    color: 'white'
+                  }}
+                />
+              </div>
+            </div>
+            <div>
+              <h3 style={{ marginBottom: '1rem', color: '#a78bfe' }}>Configuración de Costos</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <input 
+                  key={`${selectedPrinterType}-materialCost`}
+                  id={materialCostId}
+                  type="number" 
+                  placeholder={selectedPrinterType === 'resin' ? "Costo resina (€/L)" : "Costo filamento (€/kg)"}
+                  ref={inputRefs.materialCost}
+                  defaultValue={inputValues.materialCost}
+                  onChange={(e) => handleInputChange('materialCost', e.target.value)}
+                  style={{
+                    background: 'rgba(255,255,255,0.1)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    borderRadius: '8px',
+                    padding: '0.75rem',
+                    color: 'white'
+                  }}
+                />
+                <input 
+                  key={`${selectedPrinterType}-electricityCost`}
+                  id={electricityCostId}
+                  type="number" 
+                  placeholder="Costo electricidad (€/kWh)"
+                  ref={inputRefs.electricityCost}
+                  defaultValue={inputValues.electricityCost}
+                  onChange={(e) => handleInputChange('electricityCost', e.target.value)}
+                  style={{
+                    background: 'rgba(255,255,255,0.1)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    borderRadius: '8px',
+                    padding: '0.75rem',
+                    color: 'white'
+                  }}
+                />
+                <input 
+                  key={`${selectedPrinterType}-postProcessCost`}
+                  id={postProcessCostId}
+                  type="number" 
+                  placeholder="Costo post-procesado (€/h)"
+                  ref={inputRefs.postProcessCostPerHour}
+                  defaultValue={inputValues.postProcessCostPerHour}
+                  onChange={(e) => handleInputChange('postProcessCostPerHour', e.target.value)}
+                  style={{
+                    background: 'rgba(255,255,255,0.1)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    borderRadius: '8px',
+                    padding: '0.75rem',
+                    color: 'white'
+                  }}
+                />
+                <input 
+                  key={`${selectedPrinterType}-profitMargin`}
+                  id={profitMarginId}
+                  type="number" 
+                  placeholder="Margen de beneficio (%)"
+                  ref={inputRefs.profitMargin}
+                  defaultValue={inputValues.profitMargin}
+                  onChange={(e) => handleInputChange('profitMargin', e.target.value)}
+                  style={{
+                    background: 'rgba(255,255,255,0.1)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    borderRadius: '8px',
+                    padding: '0.75rem',
+                    color: 'white'
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+          
+          {/* SECCIÓN ADICIONAL DE COSTOS PROFESIONALES */}
+          <div style={{ 
+            marginTop: '2rem', 
+            padding: '1.5rem', 
+            background: 'rgba(240, 147, 251, 0.05)', 
+            borderRadius: '16px',
+            border: '1px solid rgba(240, 147, 251, 0.2)'
+          }}>
+            <h3 style={{ marginBottom: '1.5rem', color: '#f093fb', textAlign: 'center' }}>
+              Costos Adicionales Profesionales
+            </h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
+              <input 
+                key={`${selectedPrinterType}-designTime`}
+                id={designTimeId}
+                type="number" 
+                placeholder="Tiempo de diseño (horas)"
+                ref={inputRefs.designTime}
+                defaultValue={inputValues.designTime}
+                onChange={(e) => handleInputChange('designTime', e.target.value)}
+                style={{
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(240, 147, 251, 0.3)',
+                  borderRadius: '8px',
+                  padding: '0.75rem',
+                  color: 'white'
+                }}
+              />
+              <input 
+                key={`${selectedPrinterType}-designRate`}
+                id={designRateId}
+                type="number" 
+                placeholder="Tarifa diseño (€/h)"
+                ref={inputRefs.designRate}
+                defaultValue={inputValues.designRate}
+                onChange={(e) => handleInputChange('designRate', e.target.value)}
+                style={{
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(240, 147, 251, 0.3)',
+                  borderRadius: '8px',
+                  padding: '0.75rem',
+                  color: 'white'
+                }}
+              />
+              <input 
+                key={`${selectedPrinterType}-failureRate`}
+                id={failureRateId}
+                type="number" 
+                placeholder="Fallos estimados (%)"
+                ref={inputRefs.failureRate}
+                defaultValue={inputValues.failureRate}
+                onChange={(e) => handleInputChange('failureRate', e.target.value)}
+                style={{
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(240, 147, 251, 0.3)',
+                  borderRadius: '8px',
+                  padding: '0.75rem',
+                  color: 'white'
+                }}
+              />
+              <input 
+                key={`${selectedPrinterType}-supportsCost`}
+                id={supportsCostId}
+                type="number" 
+                placeholder="Costo soportes/adhesión (€)"
+                ref={inputRefs.supportsCost}
+                defaultValue={inputValues.supportsCost}
+                onChange={(e) => handleInputChange('supportsCost', e.target.value)}
+                style={{
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(240, 147, 251, 0.3)',
+                  borderRadius: '8px',
+                  padding: '0.75rem',
+                  color: 'white'
+                }}
+              />
+              <input 
+                key={`${selectedPrinterType}-shippingCost`}
+                id={shippingCostId}
+                type="number" 
+                placeholder="Empaquetado/envío (€)"
+                ref={inputRefs.shippingCost}
+                defaultValue={inputValues.shippingCost}
+                onChange={(e) => handleInputChange('shippingCost', e.target.value)}
+                style={{
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(240, 147, 251, 0.3)',
+                  borderRadius: '8px',
+                  padding: '0.75rem',
+                  color: 'white'
+                }}
+              />
+              <input 
+                key={`${selectedPrinterType}-deliveryTime`}
+                id={deliveryTimeId}
+                type="number" 
+                placeholder="Tiempo entrega (días)"
+                ref={inputRefs.deliveryTime}
+                defaultValue={inputValues.deliveryTime}
+                onChange={(e) => handleInputChange('deliveryTime', e.target.value)}
+                style={{
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(240, 147, 251, 0.3)',
+                  borderRadius: '8px',
+                  padding: '0.75rem',
+                  color: 'white'
+                }}
+              />
+            </div>
+          </div>
+
+          <div style={{ 
+            marginTop: '2rem', 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '1rem',
+            justifyContent: 'center',
+            flexWrap: 'wrap'
+          }}>
+            <input 
+              key={`${selectedPrinterType}-projectName`}
+              id={projectNameId}
+              type="text" 
+              placeholder="Nombre del diseño (ej: Miniatura Dragón)"
+              ref={inputRefs.projectName}
+              defaultValue={inputValues.projectName}
+              onChange={(e) => handleInputChange('projectName', e.target.value)}
+              style={{
+                background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(96, 165, 250, 0.3)',
+                borderRadius: '8px',
+                padding: '0.75rem 1rem',
+                color: 'white',
+                minWidth: '280px',
+                fontSize: '1rem'
+              }}
+            />
+            <button 
+              onClick={saveProject}
+              style={{
+                background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '0.75rem 2rem',
+                color: 'white',
+                fontSize: '1.1rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 8px 32px rgba(34, 197, 94, 0.3)',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              💾 Guardar Diseño
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+});
 
 export default function CalculadoraPrecios3D() {
   // Estados principales
@@ -86,6 +440,47 @@ export default function CalculadoraPrecios3D() {
     }
   });
 
+  // Refs para acceso directo a los inputs sin re-renders
+  const inputRefs = useRef({
+    resin: {
+      volume: null,
+      printTime: null,
+      postProcessTime: null,
+      pieces: null,
+      materialCost: null,
+      electricityCost: null,
+      postProcessCostPerHour: null,
+      profitMargin: null,
+      designTime: null,
+      designRate: null,
+      failureRate: null,
+      supportsCost: null,
+      shippingCost: null,
+      deliveryTime: null,
+      projectName: null
+    },
+    filament: {
+      weight: null,
+      printTime: null,
+      postProcessTime: null,
+      pieces: null,
+      materialCost: null,
+      electricityCost: null,
+      postProcessCostPerHour: null,
+      profitMargin: null,
+      designTime: null,
+      designRate: null,
+      failureRate: null,
+      supportsCost: null,
+      shippingCost: null,
+      deliveryTime: null,
+      projectName: null
+    }
+  });
+
+  // Timer para cálculos debounced
+  const calculationTimer = useRef(null);
+
   // Navegación del sidebar
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
@@ -110,9 +505,56 @@ export default function CalculadoraPrecios3D() {
     }));
   }, [selectedPrinterType]);
 
+  // Nueva función para manejar inputs con refs (sin re-renders)
+  const handleInputChange = useCallback((field, value) => {
+    // Actualizar estado solo para persistencia
+    setCalculatorInputs(prev => ({
+      ...prev,
+      [selectedPrinterType]: {
+        ...prev[selectedPrinterType],
+        [field]: value
+      }
+    }));
+
+    // Calcular con debounce
+    if (calculationTimer.current) {
+      clearTimeout(calculationTimer.current);
+    }
+    
+    calculationTimer.current = setTimeout(() => {
+      calculateCosts();
+    }, 300);
+  }, [selectedPrinterType, calculateCosts]);
+
+  // Función para obtener valores actuales de los inputs
+  const getCurrentInputValues = useCallback(() => {
+    const currentRefs = inputRefs.current[selectedPrinterType];
+    const values = {};
+    
+    Object.keys(currentRefs).forEach(key => {
+      if (currentRefs[key]) {
+        values[key] = currentRefs[key].value || '';
+      }
+    });
+    
+    return values;
+  }, [selectedPrinterType]);
+
+  // Función para sincronizar valores entre tipos de impresora
+  const syncInputValues = useCallback(() => {
+    const currentRefs = inputRefs.current[selectedPrinterType];
+    const currentInputs = calculatorInputs[selectedPrinterType];
+    
+    Object.keys(currentRefs).forEach(key => {
+      if (currentRefs[key] && currentInputs[key] !== undefined) {
+        currentRefs[key].value = currentInputs[key];
+      }
+    });
+  }, [selectedPrinterType, calculatorInputs]);
+
   // Función de cálculo automático
-  const calculateCosts = useCallback(() => {
-    const inputs = calculatorInputs[selectedPrinterType];
+  const calculateCosts = useCallback((inputValues = null) => {
+    const inputs = inputValues || calculatorInputs[selectedPrinterType];
     
     // Valores base
     const volume = parseFloat(inputs.volume) || 0;
@@ -167,9 +609,19 @@ export default function CalculadoraPrecios3D() {
     calculateCosts();
   }, [calculateCosts]);
 
+  // Sincronizar valores de refs cuando cambia el tipo de impresora
+  useEffect(() => {
+    syncInputValues();
+  }, [selectedPrinterType, syncInputValues]);
+
   // Función para guardar proyecto - Memoizada
   const saveProject = useCallback(() => {
-    const inputs = calculatorInputs[selectedPrinterType];
+    const inputs = getCurrentInputValues();
+    const projectName = inputs.projectName || `Proyecto ${savedPieces.length + 1}`;
+    
+  // Función para guardar proyecto - Memoizada
+  const saveProject = useCallback(() => {
+    const inputs = getCurrentInputValues();
     const projectName = inputs.projectName || `Proyecto ${savedPieces.length + 1}`;
     
     const newProject = {
@@ -187,348 +639,13 @@ export default function CalculadoraPrecios3D() {
     localStorage.setItem('savedPieces3D', JSON.stringify(updatedPieces));
     
     // Limpiar el nombre del proyecto después de guardar
+    if (inputRefs.current[selectedPrinterType].projectName) {
+      inputRefs.current[selectedPrinterType].projectName.value = '';
+    }
     updateInput('projectName', '');
     
     alert('¡Proyecto guardado exitosamente!');
-  }, [calculatorInputs, selectedPrinterType, savedPieces, calculations, updateInput]);
-
-// Componente Calculator Widget como componente separado fuera del render
-const CalculatorWidget = React.memo(({ 
-  currentInputs, 
-  selectedPrinterType, 
-  setSelectedPrinterType, 
-  updateInput, 
-  saveProject 
-}) => {
-  // Generar IDs únicos para cada input para evitar conflictos
-  const volumeId = useId();
-  const weightId = useId();
-  const printTimeId = useId();
-  const postProcessTimeId = useId();
-  const piecesId = useId();
-  const materialCostId = useId();
-  const electricityCostId = useId();
-  const postProcessCostId = useId();
-  const profitMarginId = useId();
-  const designTimeId = useId();
-  const designRateId = useId();
-  const failureRateId = useId();
-  const supportsCostId = useId();
-  const shippingCostId = useId();
-  const deliveryTimeId = useId();
-  const projectNameId = useId();
-
-  return (
-      <div className="dashboard-widget widget-calculator">
-        <div className="widget-header">
-          <div className="widget-title">
-            <div className="widget-icon">🧮</div>
-            Calculadora de Precios
-          </div>
-          
-          {/* SELECTOR TOGGLE MINIMALISTA SOLO TEXTO */}
-          <div className="printer-type-selector">
-            <div 
-              className={`selector-option ${selectedPrinterType === 'resin' ? 'active' : 'inactive'}`}
-              onClick={() => setSelectedPrinterType('resin')}
-            >
-              <span className="option-text">Impresora Resina</span>
-            </div>
-            <div 
-              className={`selector-option ${selectedPrinterType === 'filament' ? 'active' : 'inactive'}`}
-              onClick={() => setSelectedPrinterType('filament')}
-            >
-              <span className="option-text">Impresora Filamento</span>
-            </div>
-          </div>
-        </div>
-        <div className="widget-content">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-            <div>
-              <h3 style={{ marginBottom: '1rem', color: '#60a5fa' }}>Parámetros de Impresión</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <input 
-                  key={`${selectedPrinterType}-volume-weight`}
-                  id={selectedPrinterType === 'resin' ? volumeId : weightId}
-                  type="number" 
-                  placeholder={selectedPrinterType === 'resin' ? "Volumen de resina (ml)" : "Peso filamento (g)"}
-                  value={selectedPrinterType === 'resin' ? currentInputs.volume : currentInputs.weight}
-                  onChange={(e) => updateInput(selectedPrinterType === 'resin' ? 'volume' : 'weight', e.target.value)}
-                  style={{
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: '8px',
-                    padding: '0.75rem',
-                    color: 'white'
-                  }}
-                />
-                <input 
-                  key={`${selectedPrinterType}-printTime`}
-                  id={printTimeId}
-                  type="number" 
-                  placeholder="Tiempo de impresión (horas)"
-                  value={currentInputs.printTime}
-                  onChange={(e) => updateInput('printTime', e.target.value)}
-                  style={{
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: '8px',
-                    padding: '0.75rem',
-                    color: 'white'
-                  }}
-                />
-                <input 
-                  key={`${selectedPrinterType}-postProcessTime`}
-                  id={postProcessTimeId}
-                  type="number" 
-                  placeholder="Tiempo post-procesado (horas)"
-                  value={currentInputs.postProcessTime}
-                  onChange={(e) => updateInput('postProcessTime', e.target.value)}
-                  style={{
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: '8px',
-                    padding: '0.75rem',
-                    color: 'white'
-                  }}
-                />
-                <input 
-                  key={`${selectedPrinterType}-pieces`}
-                  id={piecesId}
-                  type="number" 
-                  placeholder="Número de piezas"
-                  value={currentInputs.pieces}
-                  onChange={(e) => updateInput('pieces', e.target.value)}
-                  style={{
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: '8px',
-                    padding: '0.75rem',
-                    color: 'white'
-                  }}
-                />
-              </div>
-            </div>
-            <div>
-              <h3 style={{ marginBottom: '1rem', color: '#a78bfe' }}>Configuración de Costos</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <input 
-                  key={`${selectedPrinterType}-materialCost`}
-                  id={materialCostId}
-                  type="number" 
-                  placeholder={selectedPrinterType === 'resin' ? "Costo resina (€/L)" : "Costo filamento (€/kg)"}
-                  value={currentInputs.materialCost}
-                  onChange={(e) => updateInput('materialCost', e.target.value)}
-                  style={{
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: '8px',
-                    padding: '0.75rem',
-                    color: 'white'
-                  }}
-                />
-                <input 
-                  key={`${selectedPrinterType}-electricityCost`}
-                  id={electricityCostId}
-                  type="number" 
-                  placeholder="Costo electricidad (€/kWh)"
-                  value={currentInputs.electricityCost}
-                  onChange={(e) => updateInput('electricityCost', e.target.value)}
-                  style={{
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: '8px',
-                    padding: '0.75rem',
-                    color: 'white'
-                  }}
-                />
-                <input 
-                  key={`${selectedPrinterType}-postProcessCost`}
-                  id={postProcessCostId}
-                  type="number" 
-                  placeholder="Costo post-procesado (€/h)"
-                  value={currentInputs.postProcessCostPerHour}
-                  onChange={(e) => updateInput('postProcessCostPerHour', e.target.value)}
-                  style={{
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: '8px',
-                    padding: '0.75rem',
-                    color: 'white'
-                  }}
-                />
-                <input 
-                  key={`${selectedPrinterType}-profitMargin`}
-                  id={profitMarginId}
-                  type="number" 
-                  placeholder="Margen de beneficio (%)"
-                  value={currentInputs.profitMargin}
-                  onChange={(e) => updateInput('profitMargin', e.target.value)}
-                  style={{
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: '8px',
-                    padding: '0.75rem',
-                    color: 'white'
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-          
-          {/* SECCIÓN ADICIONAL DE COSTOS PROFESIONALES */}
-          <div style={{ 
-            marginTop: '2rem', 
-            padding: '1.5rem', 
-            background: 'rgba(240, 147, 251, 0.05)', 
-            borderRadius: '16px',
-            border: '1px solid rgba(240, 147, 251, 0.2)'
-          }}>
-            <h3 style={{ marginBottom: '1.5rem', color: '#f093fb', textAlign: 'center' }}>
-              Costos Adicionales Profesionales
-            </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
-              <input 
-                key={`${selectedPrinterType}-designTime`}
-                id={designTimeId}
-                type="number" 
-                placeholder="Tiempo de diseño (horas)"
-                value={currentInputs.designTime}
-                onChange={(e) => updateInput('designTime', e.target.value)}
-                style={{
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '1px solid rgba(240, 147, 251, 0.3)',
-                  borderRadius: '8px',
-                  padding: '0.75rem',
-                  color: 'white'
-                }}
-              />
-              <input 
-                key={`${selectedPrinterType}-designRate`}
-                id={designRateId}
-                type="number" 
-                placeholder="Tarifa diseño (€/h)"
-                value={currentInputs.designRate}
-                onChange={(e) => updateInput('designRate', e.target.value)}
-                style={{
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '1px solid rgba(240, 147, 251, 0.3)',
-                  borderRadius: '8px',
-                  padding: '0.75rem',
-                  color: 'white'
-                }}
-              />
-              <input 
-                key={`${selectedPrinterType}-failureRate`}
-                id={failureRateId}
-                type="number" 
-                placeholder="Fallos estimados (%)"
-                value={currentInputs.failureRate}
-                onChange={(e) => updateInput('failureRate', e.target.value)}
-                style={{
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '1px solid rgba(240, 147, 251, 0.3)',
-                  borderRadius: '8px',
-                  padding: '0.75rem',
-                  color: 'white'
-                }}
-              />
-              <input 
-                key={`${selectedPrinterType}-supportsCost`}
-                id={supportsCostId}
-                type="number" 
-                placeholder="Costo soportes/adhesión (€)"
-                value={currentInputs.supportsCost}
-                onChange={(e) => updateInput('supportsCost', e.target.value)}
-                style={{
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '1px solid rgba(240, 147, 251, 0.3)',
-                  borderRadius: '8px',
-                  padding: '0.75rem',
-                  color: 'white'
-                }}
-              />
-              <input 
-                key={`${selectedPrinterType}-shippingCost`}
-                id={shippingCostId}
-                type="number" 
-                placeholder="Empaquetado/envío (€)"
-                value={currentInputs.shippingCost}
-                onChange={(e) => updateInput('shippingCost', e.target.value)}
-                style={{
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '1px solid rgba(240, 147, 251, 0.3)',
-                  borderRadius: '8px',
-                  padding: '0.75rem',
-                  color: 'white'
-                }}
-              />
-              <input 
-                key={`${selectedPrinterType}-deliveryTime`}
-                id={deliveryTimeId}
-                type="number" 
-                placeholder="Tiempo entrega (días)"
-                value={currentInputs.deliveryTime}
-                onChange={(e) => updateInput('deliveryTime', e.target.value)}
-                style={{
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '1px solid rgba(240, 147, 251, 0.3)',
-                  borderRadius: '8px',
-                  padding: '0.75rem',
-                  color: 'white'
-                }}
-              />
-            </div>
-          </div>
-
-          <div style={{ 
-            marginTop: '2rem', 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '1rem',
-            justifyContent: 'center',
-            flexWrap: 'wrap'
-          }}>
-            <input 
-              key={`${selectedPrinterType}-projectName`}
-              id={projectNameId}
-              type="text" 
-              placeholder="Nombre del diseño (ej: Miniatura Dragón)"
-              value={currentInputs.projectName}
-              onChange={(e) => updateInput('projectName', e.target.value)}
-              style={{
-                background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(96, 165, 250, 0.3)',
-                borderRadius: '8px',
-                padding: '0.75rem 1rem',
-                color: 'white',
-                minWidth: '280px',
-                fontSize: '1rem'
-              }}
-            />
-            <button 
-              onClick={saveProject}
-              style={{
-                background: 'linear-gradient(135deg, #22c55e, #16a34a)',
-                border: 'none',
-                borderRadius: '12px',
-                padding: '0.75rem 2rem',
-                color: 'white',
-                fontSize: '1.1rem',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 8px 32px rgba(34, 197, 94, 0.3)',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              💾 Guardar Diseño
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-});
+  }, [getCurrentInputValues, selectedPrinterType, savedPieces, calculations, updateInput]);
 
 // Componente Results Widget - Memoizado
 const ResultsWidget = React.memo(({ calculations }) => (
@@ -846,10 +963,11 @@ const QuickActionsWidget = React.memo(() => (
         {/* Dashboard Widgets Grid */}
         <div className="dashboard-widgets">
           <CalculatorWidget 
-            currentInputs={calculatorInputs[selectedPrinterType]}
+            inputRefs={inputRefs.current[selectedPrinterType]}
+            inputValues={calculatorInputs[selectedPrinterType]}
             selectedPrinterType={selectedPrinterType}
             setSelectedPrinterType={setSelectedPrinterType}
-            updateInput={updateInput}
+            handleInputChange={handleInputChange}
             saveProject={saveProject}
           />
           <ResultsWidget calculations={calculations} />

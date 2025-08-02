@@ -1,6 +1,79 @@
 # Changelog
 
-Todos los cambios notables de este p### ⚡ **OPTIMIZACIONES DE RENDIMIENTO DETALLADAS** - NUEVO
+All notable changes to this project will be documented in this file.
+
+## [2.0.0] - 2025-08-02
+
+### 🎉 Major Release - Complete UI/UX Overhaul
+
+#### ✨ Added
+- **Modern Design System**: Complete redesign with gradients, shadows, and professional styling
+- **Compact Library Cards**: New compact design for better scrolling and multiple piece visibility
+- **Custom Scrollbars**: Beautiful webkit scrollbars with gradient styling that match the app theme
+- **Enhanced Results Panel**: Professional card-based layout for calculation results with visual emphasis
+- **Improved Performance**: useCallback optimization for all input handlers to prevent focus loss
+- **Better Typography**: Enhanced fonts, spacing, and visual hierarchy throughout the application
+- **Hover Effects**: Subtle animations and hover states for better user interaction
+- **Visual Feedback**: Better loading states, transitions, and user feedback mechanisms
+
+#### 🔧 Improved
+- **Input Focus Bug Fixed**: Completely resolved the issue where inputs lost focus while typing
+- **Library Navigation**: Smooth scrolling experience for browsing saved pieces
+- **Responsive Design**: Better adaptation to different screen sizes
+- **Code Organization**: Cleaner component structure and better separation of concerns
+- **Performance**: Optimized re-renders and faster user interactions
+- **Accessibility**: Better contrast ratios and keyboard navigation support
+
+#### 🎨 Design Changes
+- **Color Palette**: New modern gradient-based color scheme
+- **Card Design**: Compact, information-dense cards for better space utilization
+- **Results Display**: Visually appealing breakdown of cost calculations
+- **Interactive Elements**: Enhanced buttons, inputs, and interactive components
+- **Visual Hierarchy**: Clear information structure with proper emphasis
+
+#### 🏗️ Technical Improvements
+- **React 19.1.0**: Updated to latest React version with modern hooks
+- **Code Optimization**: Memoized handlers and optimized component renders
+- **CSS Architecture**: Better organized styles with consistent design tokens
+- **Storage Management**: Improved localStorage handling for saved pieces
+- **Error Handling**: Better validation and user feedback for edge cases
+
+#### 📱 User Experience
+- **Intuitive Navigation**: Clearer flow between different calculator modes
+- **Quick Actions**: Faster save/load operations for pieces
+- **Visual Consistency**: Unified design language across all components
+- **Smooth Interactions**: Fluid animations and transitions
+- **Information Density**: More information visible at once without clutter
+
+### 🐛 Bug Fixes
+- Fixed input focus loss during typing (critical UX issue)
+- Resolved scroll behavior in library sections
+- Fixed price calculation precision issues
+- Corrected responsive layout problems on smaller screens
+- Fixed localStorage synchronization issues
+
+### 🔄 Changed
+- Completely redesigned library piece cards for better information display
+- Restructured results panel with visual cost breakdown
+- Updated navigation and user flow
+- Modernized visual design language
+- Improved mobile responsiveness
+
+### ⚠️ Breaking Changes
+- Updated component structure (internal changes, no API breaks)
+- New design system may require cache clearing for optimal experience
+
+---
+
+## [1.0.0] - Previous Version
+
+### Initial Release
+- Basic calculator functionality for resin and filament
+- Simple piece saving system
+- Basic responsive design
+- Core calculation algorithms
+
+---
 - **CSS Optimizado**: 
   - Animaciones reducidas en 70% con `prefer-reduced-motion`
   - Efectos solo en hover/interacción para reducir CPU
