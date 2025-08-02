@@ -1,11 +1,35 @@
 # Calculadora de Precios 3D
 
-![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)
-![React](https://img.shields.io/badge/React-19.1.0-61dafb.svg)
-![Vite](https://img.shields.io/badge/Vite-7.0.6-646cff.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Version](https://img.shields.io/github/v/release/Matalentajas/Calculadora-de-Precio-Impresi-n-3D-Resina?style=for-the-badge&color=blue)
+![Downloads](https://img.shields.io/github/downloads/Matalentajas/Calculadora-de-Precio-Impresi-n-3D-Resina/total?style=for-the-badge&color=green)
+![React](https://img.shields.io/badge/React-19.1.0-61dafb.svg?style=for-the-badge)
+![Electron](https://img.shields.io/badge/Electron-37.2.5-9feaf9.svg?style=for-the-badge)
+![License](https://img.shields.io/badge/license-MIT-green.svg?style=for-the-badge)
 
-Una aplicación web moderna para calcular precios de impresión 3D para **resina** y **filamento**.
+Una aplicación de escritorio moderna para calcular precios de impresión 3D para **resina** y **filamento**.
+
+## 📥 Descarga
+
+### 🚀 Aplicación de Escritorio (Recomendada)
+[![Descargar para Windows](https://img.shields.io/badge/Descargar%20para-Windows-blue?style=for-the-badge&logo=windows)](https://github.com/Matalentajas/Calculadora-de-Precio-Impresi-n-3D-Resina/releases/latest)
+
+**Características:**
+- ✅ Sin instalación requerida (portable)
+- ✅ Ultra-optimizada para rendimiento
+- ✅ Interfaz nativa de Windows
+- ✅ Almacenamiento local de proyectos
+
+### 🌐 Versión Web
+Accede directamente desde tu navegador: [calculadora3d.netlify.app](https://calculadora3d.netlify.app) *(próximamente)*
+
+## 📸 Capturas de Pantalla
+
+<div align="center">
+  <img src="https://via.placeholder.com/800x500/667eea/ffffff?text=Calculadora+de+Resina" alt="Calculadora de Resina" width="400"/>
+  <img src="https://via.placeholder.com/800x500/764ba2/ffffff?text=Calculadora+de+Filamento" alt="Calculadora de Filamento" width="400"/>
+</div>
+
+*Capturas de pantalla de la interfaz moderna con tema oscuro*
 
 ## ✨ Características
 
@@ -15,22 +39,32 @@ Una aplicación web moderna para calcular precios de impresión 3D para **resina
 - 📱 **Diseño Responsive** - Funciona en cualquier dispositivo
 - 🎨 **Interfaz Moderna** - Tema oscuro profesional
 
-## 🚀 Instalación y Uso
+## �️ Desarrollo
+
+### Configuración inicial
+```bash
+git clone https://github.com/Matalentajas/Calculadora-de-Precio-Impresi-n-3D-Resina.git
+cd Calculadora-de-Precio-Impresi-n-3D-Resina
+npm install
+```
 
 ### Desarrollo Web
 ```bash
-npm install
 npm run dev
 ```
+Abre http://localhost:5173 en tu navegador
 
 ### Aplicación de Escritorio
 ```bash
-npm install
+# Desarrollo con recarga automática
+npm run electron:dev
+
+# Compilar aplicación de escritorio
 npm run app:dist
 ```
-Esto genera el ejecutable en `dist-app/win-unpacked/Calculadora 3D.exe`
+El ejecutable se genera en `dist-app/win-unpacked/Calculadora 3D.exe`
 
-### Producción Web
+### Build para producción
 ```bash
 npm run build
 npm run preview

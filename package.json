@@ -2,9 +2,18 @@
   "name": "calculadora-precios-3d",
   "version": "2.0.0",
   "description": "Calculadora profesional de costes para impresión 3D - Resina y Filamento",
+  "keywords": ["3d-printing", "calculator", "resin", "filament", "electron", "react"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Matalentajas/Calculadora-de-Precio-Impresi-n-3D-Resina.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Matalentajas/Calculadora-de-Precio-Impresi-n-3D-Resina/issues"
+  },
   "author": {
     "name": "Artur",
-    "email": "tu-email@ejemplo.com"
+    "email": "tu-email@ejemplo.com",
+    "url": "https://github.com/Matalentajas"
   },
   "license": "MIT",
   "main": "main.js",
