@@ -97,7 +97,7 @@ export default defineConfig({
   
   // 🚀 Variables de entorno
   define: {
-    __DEV__: JSON.stringify(import.meta.env.DEV),
-    __PROD__: JSON.stringify(import.meta.env.PROD)
+    __DEV__: JSON.stringify(true),
+    __PROD__: JSON.stringify(false)
   }
 })
