@@ -222,6 +222,74 @@ const PrinterTypeSelector = ({ selectedType, onTypeChange }) => {
             <div className="card-accent"></div>
           </div>
         </div>
+
+        <div 
+          className={`premium-type-card ${selectedType === 'scale' ? 'active' : ''}`}
+          onClick={() => onTypeChange('scale')}
+        >
+          <div className="card-glow"></div>
+          <div className="card-content">
+            <div className="card-icon scale-icon">
+              <svg width="48" height="48" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {/* Base de la calculadora */}
+                <rect x="8" y="42" width="44" height="12" rx="3" fill="url(#scaleGradient1)" stroke="rgba(59,130,246,0.3)" strokeWidth="0.5"/>
+                
+                {/* Pantalla principal */}
+                <rect x="12" y="25" width="36" height="17" rx="2" fill="url(#scaleGradient2)" stroke="rgba(59,130,246,0.2)" strokeWidth="0.5"/>
+                
+                {/* Display LCD */}
+                <rect x="16" y="28" width="28" height="8" rx="1" fill="#0a0a0a" stroke="rgba(59,130,246,0.6)" strokeWidth="1"/>
+                <rect x="17" y="29" width="26" height="6" rx="0.5" fill="url(#displayScaleGradient)"/>
+                
+                {/* Números en la pantalla */}
+                <text x="20" y="33" fill="#3b82f6" fontSize="4" fontWeight="bold">125%</text>
+                
+                {/* Figuras en escala */}
+                <g transform="translate(20, 10)">
+                  {/* Figura original */}
+                  <rect x="0" y="8" width="6" height="2" rx="1" fill="rgba(251,191,36,0.6)" stroke="rgba(251,191,36,0.8)" strokeWidth="0.3"/>
+                  <rect x="1" y="5" width="4" height="3" rx="0.5" fill="rgba(251,191,36,0.9)"/>
+                  <text x="3" y="2" fill="#6b7280" fontSize="2" textAnchor="middle">A</text>
+                </g>
+                
+                <g transform="translate(32, 8)">
+                  {/* Figura escalada */}
+                  <rect x="0" y="10" width="8" height="2.5" rx="1" fill="rgba(34,197,94,0.6)" stroke="rgba(34,197,94,0.8)" strokeWidth="0.3"/>
+                  <rect x="1" y="6" width="6" height="4" rx="0.5" fill="rgba(34,197,94,0.9)"/>
+                  <text x="4" y="2" fill="#6b7280" fontSize="2" textAnchor="middle">B</text>
+                </g>
+                
+                {/* Flecha de escalado */}
+                <path d="M28 15 L32 15 M30 13 L32 15 L30 17" stroke="#3b82f6" strokeWidth="1" fill="none"/>
+                
+                {/* Botones de la calculadora */}
+                <circle cx="20" cy="45" r="1.5" fill="rgba(59,130,246,0.3)" stroke="rgba(59,130,246,0.6)" strokeWidth="0.5"/>
+                <circle cx="26" cy="45" r="1.5" fill="rgba(59,130,246,0.3)" stroke="rgba(59,130,246,0.6)" strokeWidth="0.5"/>
+                <circle cx="32" cy="45" r="1.5" fill="rgba(59,130,246,0.3)" stroke="rgba(59,130,246,0.6)" strokeWidth="0.5"/>
+                <circle cx="38" cy="45" r="1.5" fill="rgba(59,130,246,0.3)" stroke="rgba(59,130,246,0.6)" strokeWidth="0.5"/>
+                
+                <defs>
+                  <linearGradient id="scaleGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#3b82f6"/>
+                    <stop offset="100%" stopColor="#1d4ed8"/>
+                  </linearGradient>
+                  <linearGradient id="scaleGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#1d4ed8"/>
+                    <stop offset="100%" stopColor="#3b82f6"/>
+                  </linearGradient>
+                  <linearGradient id="displayScaleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#3b82f6"/>
+                    <stop offset="50%" stopColor="#1d4ed8"/>
+                    <stop offset="100%" stopColor="#3b82f6"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <h3>Calculadora de Escalado</h3>
+            <p>Figuras y Peanas 3D</p>
+            <div className="card-accent"></div>
+          </div>
+        </div>
       </div>
 
       <div className="selector-footer">

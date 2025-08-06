@@ -1135,6 +1135,10 @@ body {
   filter: drop-shadow(0 4px 12px rgba(240, 147, 251, 0.4));
 }
 
+.card-icon.scale-icon {
+  filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.4));
+}
+
 .premium-type-card h3 {
   font-size: 1.8rem;
   font-weight: 700;

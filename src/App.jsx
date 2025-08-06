@@ -3,10 +3,12 @@ import './App.css';
 import PrinterTypeSelector from './components/PrinterTypeSelector';
 import FilamentCalculator from './components/FilamentCalculator';
 import ResinCalculator from './components/ResinCalculator';
+import ScaleCalculator from './components/ScaleCalculator';
 
 // 🚀 OPTIMIZACIÓN: Lazy loading de componentes pesados
 const LazyFilamentCalculator = React.lazy(() => import('./components/FilamentCalculator'));
 const LazyResinCalculator = React.lazy(() => import('./components/ResinCalculator'));
+const LazyScaleCalculator = React.lazy(() => import('./components/ScaleCalculator'));
 
 export default function CalculadoraPrecios3D() {
   // Estados principales
@@ -234,7 +236,7 @@ export default function CalculadoraPrecios3D() {
             onDeletePiece={handleDeletePiece}
             onLoadPiece={handleLoadPiece}
           />
-        ) : (
+        ) : selectedPrinterType === 'resin' ? (
           <LazyResinCalculator 
             profile={currentProfile}
             profiles={profiles.filter(p => p.type === 'resin')}
@@ -249,7 +251,9 @@ export default function CalculadoraPrecios3D() {
             onDeletePiece={handleDeletePiece}
             onLoadPiece={handleLoadPiece}
           />
-        )}
+        ) : selectedPrinterType === 'scale' ? (
+          <LazyScaleCalculator />
+        ) : null}
       </React.Suspense>
     );
   }, [selectedPrinterType, currentProfile, activePanel, savedPieces, handleSavePiece, handleDeletePiece, handleLoadPiece]);
@@ -264,7 +268,9 @@ export default function CalculadoraPrecios3D() {
           
           <div className="printer-type-indicator">
             <button onClick={resetToTypeSelector} className="change-type-btn">
-              {selectedPrinterType === 'resin' ? '🏭 Resina SLA/DLP' : '🔧 Filamento FDM/FFF'}
+              {selectedPrinterType === 'resin' ? '🏭 Resina SLA/DLP' : 
+               selectedPrinterType === 'filament' ? '🔧 Filamento FDM/FFF' : 
+               selectedPrinterType === 'scale' ? '🎯 Calculadora de Escalado' : ''}
               <span className="change-text">← Cambiar</span>
             </button>
           </div>
