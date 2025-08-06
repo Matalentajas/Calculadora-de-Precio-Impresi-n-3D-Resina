@@ -9,6 +9,9 @@ import ScaleCalculator from './components/ScaleCalculator';
 const LazyFilamentCalculator = React.lazy(() => import('./components/FilamentCalculator'));
 const LazyResinCalculator = React.lazy(() => import('./components/ResinCalculator'));
 const LazyScaleCalculator = React.lazy(() => import('./components/ScaleCalculator'));
+const LazyTimeCostCalculator = React.lazy(() => import('./components/TimeCostCalculator'));
+const LazyProjectDashboard = React.lazy(() => import('./components/ProjectDashboard'));
+const LazySupportsCalculator = React.lazy(() => import('./components/SupportsCalculator'));
 
 export default function CalculadoraPrecios3D() {
   // Estados principales
@@ -253,6 +256,12 @@ export default function CalculadoraPrecios3D() {
           />
         ) : selectedPrinterType === 'scale' ? (
           <LazyScaleCalculator />
+        ) : selectedPrinterType === 'time-cost' ? (
+          <LazyTimeCostCalculator />
+        ) : selectedPrinterType === 'dashboard' ? (
+          <LazyProjectDashboard />
+        ) : selectedPrinterType === 'supports' ? (
+          <LazySupportsCalculator />
         ) : null}
       </React.Suspense>
     );
@@ -270,7 +279,10 @@ export default function CalculadoraPrecios3D() {
             <button onClick={resetToTypeSelector} className="change-type-btn">
               {selectedPrinterType === 'resin' ? '🏭 Resina SLA/DLP' : 
                selectedPrinterType === 'filament' ? '🔧 Filamento FDM/FFF' : 
-               selectedPrinterType === 'scale' ? '🎯 Calculadora de Escalado' : ''}
+               selectedPrinterType === 'scale' ? '🎯 Calculadora de Escalado' :
+               selectedPrinterType === 'time-cost' ? '⏱️ Tiempos y Costos' :
+               selectedPrinterType === 'dashboard' ? '📊 Dashboard Proyectos' :
+               selectedPrinterType === 'supports' ? '🏗️ Soportes Optimizados' : ''}
               <span className="change-text">← Cambiar</span>
             </button>
           </div>
@@ -308,17 +320,3 @@ function debounce(func, wait) {
     timeout = setTimeout(later, wait);
   };
 }
-
-// 🚀 OPTIMIZACIÓN: HOC para memoización de componentes pesados
-export const withPerformance = (Component) => {
-  return React.memo(Component, (prevProps, nextProps) => {
-    // Comparación shallow personalizada para mejor rendimiento
-    const keys = Object.keys(prevProps);
-    for (let key of keys) {
-      if (prevProps[key] !== nextProps[key]) {
-        return false;
-      }
-    }
-    return true;
-  });
-};
